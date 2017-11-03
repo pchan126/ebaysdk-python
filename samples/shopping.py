@@ -48,12 +48,12 @@ def run(opts):
     print("Shopping samples for SDK version %s" % ebaysdk.get_version())
 
     try:
-        response = api.execute('FindPopularItems', {'QueryKeywords': 'Python'})
+        response = api.execute('FindProducts', {'QueryKeywords': 'Harry Potter', 'MaxEntries': 2, 'AvailableItemsOnly': 'true'})
 
         dump(api)
 
         print("Matching Titles:")
-        for item in response.reply.ItemArray.Item:
+        for item in response.reply.Product:
             print(item.Title)
 
     except ConnectionError as e:

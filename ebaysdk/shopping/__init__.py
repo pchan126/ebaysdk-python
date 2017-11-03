@@ -27,7 +27,7 @@ class Connection(BaseConnection):
 
     Doctests:
     >>> s = Connection(config_file=os.environ.get('EBAY_YAML'))
-    >>> retval = s.execute('FindPopularItems', {'QueryKeywords': 'Python'})
+    >>> retval = s.execute('FindProducts', {'QueryKeywords': 'Harry Potter', 'MaxEntries': 2, 'AvailableItemsOnly': 'true'})
     >>> print(s.response_obj().Ack)
     Success
     >>> print(s.error())
