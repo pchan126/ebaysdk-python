@@ -61,61 +61,13 @@ def run(opts):
         print(e.response.dict())
 
 
-def popularSearches(opts):
-
-    api = Shopping(debug=opts.debug, appid=opts.appid, config_file=opts.yaml,
-                   warnings=True)
-
-    choice = True
-
-    while choice:
-
-        choice = input('Search: ')
-
-        if choice == 'quit':
-            break
-
-        mySearch = {
-            "MaxKeywords": 10,
-            "QueryKeywords": choice,
-        }
-
-        try:
-            response = api.execute('FindPopularSearches', mySearch)
-
-            dump(api, full=False)
-
-            print("Related: %s" %
-                  response.reply.PopularSearchResult.RelatedSearches)
-
-            for term in response.reply.PopularSearchResult.AlternativeSearches.split(';')[:3]:
-                api.execute('FindPopularItems', {
-                            'QueryKeywords': term, 'MaxEntries': 3})
-
-                print("Term: %s" % term)
-
-                try:
-                    for item in response.reply.ItemArray.Item:
-                        print(item.Title)
-                except AttributeError:
-                    pass
-
-                dump(api)
-
-            print("\n")
-
-        except ConnectionError as e:
-            print(e)
-            print(e.response.dict())
-
-
 def categoryInfo(opts):
 
     try:
         api = Shopping(debug=opts.debug, appid=opts.appid, config_file=opts.yaml,
                        warnings=True)
 
-        response = api.execute('GetCategoryInfo', {"CategoryID": 3410})
+        response = api.execute('GetCategoryInfo', {"CategoryID": 183473})
 
         dump(api, full=False)
 
@@ -128,14 +80,14 @@ def with_affiliate_info(opts):
     try:
         api = Shopping(debug=opts.debug, appid=opts.appid,
                        config_file=opts.yaml, warnings=True,
-                       trackingid=1234, trackingpartnercode=9)
+                       trackingid='1234', trackingpartnercode='9')
 
         mySearch = {
-            "MaxKeywords": 10,
+            "MaxEntries": 2,
             "QueryKeywords": 'shirt',
         }
 
-        response = api.execute('FindPopularSearches', mySearch)
+        response = api.execute('FindProducts', mySearch)
         dump(api, full=False)
 
     except ConnectionError as e:
@@ -162,7 +114,6 @@ def using_attributes(opts):
 if __name__ == "__main__":
     (opts, args) = init_options()
     run(opts)
-    popularSearches(opts)
     categoryInfo(opts)
     with_affiliate_info(opts)
     using_attributes(opts)
