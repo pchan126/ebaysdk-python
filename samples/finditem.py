@@ -15,7 +15,7 @@ from common import dump
 
 import ebaysdk
 from ebaysdk.soa.finditem import Connection as FindItem
-from ebaysdk.shopping import Connection as Shopping
+from ebaysdk.finding import Connection as Finding
 from ebaysdk.utils import getNodeText
 from ebaysdk.exception import ConnectionError
 
@@ -41,35 +41,42 @@ def init_options():
     return opts, args
 
 
+def getIds(itemList):
+    for x in itemList:
+        yield x.itemId
+
 def run(opts):
 
     try:
 
-        shopping = Shopping(debug=opts.debug, appid=opts.appid,
+        shopping = Finding(debug=opts.debug, appid=opts.appid,
                             config_file=opts.yaml, warnings=False)
 
-        response = shopping.execute('FindPopularItems',
-                                    {'QueryKeywords': 'Python'})
+        response = shopping.execute('findItemsByKeywords',
+                                    {'keywords': 'Python'})
 
-        nodes = response.dom().xpath('//ItemID')
-        itemIds = [n.text for n in nodes]
+        nodes = response.reply.searchResult.item #dom().xpath('//ItemID')
+        itemIds = list(getIds(response.reply.searchResult.item)) #[n.text for n in nodes]
 
-        api = FindItem(debug=opts.debug,
-                       consumer_id=opts.consumer_id, config_file=opts.yaml)
+        # api = FindItem(debug=opts.debug,
+        #                consumer_id=opts.consumer_id, config_file=opts.yaml)
+        #
+        # records = api.find_items_by_ids([itemIds[0]])
 
-        records = api.find_items_by_ids([itemIds[0]])
+        for r in nodes:
+            print ("ID(%s) TITLE(%s)" % (r.itemId, r.title))
 
-        for r in records:
-            print("ID(%s) TITLE(%s)" % (r['ITEM_ID'], r['TITLE'][:35]))
-
-        dump(api)
-
-        records = api.find_items_by_ids(itemIds)
-
-        for r in records:
-            print("ID(%s) TITLE(%s)" % (r['ITEM_ID'], r['TITLE'][:35]))
-
-        dump(api)
+        # for r in records:
+        #     print("ID(%s) TITLE(%s)" % (r['ITEM_ID'], r['TITLE'][:35]))
+        #
+        # dump(api)
+        #
+        # records = api.find_items_by_ids(itemIds)
+        #
+        # for r in records:
+        #     print("ID(%s) TITLE(%s)" % (r['ITEM_ID'], r['TITLE'][:35]))
+        #
+        # dump(api)
 
     except ConnectionError as e:
         print(e)
