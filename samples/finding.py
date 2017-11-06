@@ -44,18 +44,25 @@ def run(opts):
 
         api_request = {
             #'keywords': u'niño',
-            'keywords': u'GRAMMY Foundation®',
+#            'keywords': u'GRAMMY Foundation®',
+            'keywords': u'Warhammer 40k',
             'itemFilter': [
                 {'name': 'Condition',
                  'value': 'Used'},
                 {'name': 'LocatedIn',
-                 'value': 'GB'},
+                 'value': 'CA'},
             ],
             'affiliate': {'trackingId': 1},
             'sortOrder': 'CountryDescending',
         }
 
         response = api.execute('findItemsAdvanced', api_request)
+
+        if hasattr(response.reply.searchResult, 'item'):
+            for r in response.reply.searchResult.item:
+                print("ID(%s) TITLE(%s)" % (r.itemId, r.title))
+        else:
+            print("No Items Found.")
 
         dump(api)
     except ConnectionError as e:
@@ -74,10 +81,13 @@ def run_unicode(opts):
         }
 
         response = api.execute('findItemsAdvanced', api_request)
-        for i in response.reply.searchResult.item:
-            if i.title.find(u'ś') >= 0:
-                print("Matched: %s" % i.title)
-                break
+        if hasattr(response.reply.searchResult, 'item'):
+            for i in response.reply.searchResult.item:
+                if i.title.find(u'ś') >= 0:
+                    print("Matched: %s" % i.title)
+                    break
+        else:
+            print("No Items Found.")
 
         dump(api)
 
@@ -94,6 +104,12 @@ def run2(opts):
         response = api.execute('findItemsByProduct',
                                '<productId type="ReferenceID">53039031</productId><paginationInput><entriesPerPage>1</entriesPerPage></paginationInput>')
 
+        if hasattr(response.reply.searchResult, 'item'):
+            for r in response.reply.searchResult.item:
+                print("ID(%s) TITLE(%s)" % (r.itemId, r.title))
+        else:
+            print("No Items Found.")
+
         dump(api)
 
     except ConnectionError as e:
@@ -105,9 +121,15 @@ def run_motors(opts):
     api = finding(siteid='EBAY-MOTOR', debug=opts.debug, appid=opts.appid, config_file=opts.yaml,
                   warnings=True)
 
-    api.execute('findItemsAdvanced', {
+    response = api.execute('findItemsAdvanced', {
         'keywords': 'tesla',
     })
+
+    if hasattr(response.reply.searchResult, 'item'):
+        for r in response.reply.searchResult.item:
+            print("ID(%s) TITLE(%s)" % (r.itemId, r.title))
+    else:
+        print("No Items Found.")
 
     if api.error():
         raise Exception(api.error())
@@ -120,6 +142,9 @@ def run_motors(opts):
 
     dictstr = "%s" % api.response_dict()
     print("Response dictionary: %s..." % dictstr[:250])
+
+
+
 
 if __name__ == "__main__":
     print("Finding samples for SDK version %s" % ebaysdk.get_version())

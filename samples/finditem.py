@@ -53,11 +53,12 @@ def run(opts):
         response = shopping.execute('findItemsByKeywords',
                                     {'keywords': 'Python'})
 
-        nodes = response.reply.searchResult.item
-#        itemIds = list(getIds(response.reply.searchResult.item))
-
-        for r in nodes:
-            print ("ID(%s) TITLE(%s)" % (r.itemId, r.title))
+        if hasattr(response.reply.searchResult, 'item'):
+            nodes = response.reply.searchResult.item
+            for r in nodes:
+                print("ID(%s) TITLE(%s)" % (r.itemId, r.title))
+        else:
+            print("No Items Found.")
 
     except ConnectionError as e:
         print(e)
